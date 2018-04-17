@@ -1,28 +1,26 @@
-/*
- * ESP8266 Web server with Web Socket to control an LED.
- *
- * The web server keeps all clients' LED status up to date and any client may
- * turn the LED on or off.
- *
- * For example, clientA connects and turns the LED on. This changes the word
- * "LED" on the web page to the color red. When clientB connects, the word
- * "LED" will be red since the server knows the LED is on.  When clientB turns
- * the LED off, the word LED changes color to black on clientA and clientB web
- * pages.
- *
- * References:
- *
- * https://github.com/Links2004/arduinoWebSockets
- *
- */
-
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 #include <WebSocketsServer.h>
-#include <Hash.h>
 
 static const char ssid[] = "iPhone de Jason";
 static const char password[] = "cacpou1big302";
+const char up[]= "up"; 
+const char left[]= "left"; 
+const char right[]= "right"; 
+const char down[]= "down"; 
+const char action[]= "action"; 
+
+const int buttonUp = 15;
+const int buttonLeft = 13;
+const int buttonRight = 12;
+const int buttonDown = 14;
+const int buttonAction = 16;
+int buttonUpState = 0;
+int buttonLeftState = 0;
+int buttonRightState = 0;
+int buttonDownState = 0;
+int buttonActionState = 0;
+
 
 ESP8266WiFiMulti WiFiMulti;
 WebSocketsServer webSocket = WebSocketsServer(81);
@@ -32,7 +30,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
   Serial.printf("webSocketEvent(%d, %d, ...)\r\n", num, type);
   switch(type) {
     case WStype_DISCONNECTED:
-      Serial.printf("[%u] Disconnected!\r\n", num);
+      Serial.println("Disconnected!");
       break;
     case WStype_CONNECTED:
       {
@@ -41,7 +39,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
       }
       break;
     default:
-      Serial.printf("Invalid WStype [%d]\r\n", type);
+      Serial.printf("Invalid WStype", type);
       break;
   }
 }
@@ -50,6 +48,12 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 void setup()
 {
   Serial.begin(115200);
+
+  pinMode(buttonUp, INPUT);
+  pinMode(buttonLeft, INPUT);
+  pinMode(buttonRight, INPUT);
+  pinMode(buttonDown, INPUT);
+  pinMode(buttonAction, INPUT);
 
   Serial.println();
   Serial.println();
@@ -80,6 +84,26 @@ void setup()
 
 void loop()
 {
-  webSocket.broadcastTXT("Onche",strlen("Onche"));
   webSocket.loop();
+  buttonUpState = digitalRead(buttonUp);
+  buttonLeftState = digitalRead(buttonLeft);
+  buttonRightState = digitalRead(buttonRight);
+  buttonDownState = digitalRead(buttonDown);
+  buttonActionState = digitalRead(buttonAction);
+  
+  if (buttonUpState == HIGH) {
+     webSocket.broadcastTXT(up,strlen(up));
+  } 
+  else if(buttonLeftState == HIGH){
+     webSocket.broadcastTXT(left,strlen(left));
+  }
+  else if(buttonRightState == HIGH){
+     webSocket.broadcastTXT(right,strlen(right));
+  }
+  else if(buttonDownState == HIGH){
+     webSocket.broadcastTXT(down,strlen(down));
+  }
+  else if(buttonActionState == HIGH){
+     webSocket.broadcastTXT(action,strlen(action));
+  }
 }
