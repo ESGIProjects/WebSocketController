@@ -4,7 +4,7 @@ An arduino application which allows to control a [Swift game](https://github.com
 
 ## The circuit
 
-![]()
+![](https://github.com/ESGIProjects/WebSocketController/blob/master/fritzing.jpg)
 
 ## Dependencies
 
